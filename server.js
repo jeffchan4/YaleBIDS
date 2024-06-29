@@ -1,14 +1,19 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const axios = require('axios');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Parse JSON bodies
 app.use(express.json());
 
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
+
+app.use(bodyParser.json());
+app.use(cors());
 
 
 app.get('/', (req, res) => {
@@ -44,44 +49,61 @@ const search_term= async (taskId) => {
 }
 
 
-app.get('/api/search', (req,res) => {
-    const db= 'pubmed';
-    const term= 'diabetes';
+app.post('/api/search', (req,res) => {
+    const {term} = req.body;
+    console.log('Received word:', {term});
 
-    axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { db, term } })
+    function extractNumbers(str){
+        const regex = /<Id>(\d+)<\/Id>/g;
+        let matches;
+        const ids = [];
+
+        while ((matches = regex.exec(str)) !== null) {
+            ids.push(matches[1]); // matches[1] contains the captured group (the number)
+        }
+
+        return ids;
+        }
+    
+
+    axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { term } })
         .then(response => {
-            res.json(response.data);
+            console.log(response.data)
+            const pmids=extractNumbers(response.data)
+            res.json(pmids);
         })
         .catch(error => {
             res.status(500).json({ error: 'Internal server error' });
         });
 });
 
-function test () {
-    const db= 'pubmed';
-    const term= 'diabetes';
-    function extractNumbers(str){
-        const regex = /<Id>(\d+)<\/Id>/g;
-    let matches;
-    const ids = [];
 
-    while ((matches = regex.exec(str)) !== null) {
-        ids.push(matches[1]); // matches[1] contains the captured group (the number)
-    }
+// function test () {
+//     const db= 'pubmed';
+//     const term= 'diabetes';
+//     function extractNumbers(str){
+//         const regex = /<Id>(\d+)<\/Id>/g;
+//         let matches;
+//         const ids = [];
 
-    return ids;
-    }
-    axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { db, term } })
-        .then(response => {
+//         while ((matches = regex.exec(str)) !== null) {
+//             ids.push(matches[1]); // matches[1] contains the captured group (the number)
+//         }
+
+//         return ids;
+//         }
+//     axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { db, term } })
+//         .then(response => {
             
-            return extractNumbers(response.data)
-        })
-        .catch(error => {
-            console.log(error)
-        });
-}
+//             return extractNumbers(response.data)
+//         })
+//         .catch(error => {
+//             console.log(error)
+//         });
+// }
 
 //Create task_id for query while it runs in the background
+
 app.post('/search/:term', (req,res)=>{
     const pubmed_term = req.params.term;
     
@@ -136,5 +158,5 @@ app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-test();
+
 

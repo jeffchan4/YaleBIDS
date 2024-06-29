@@ -6,7 +6,8 @@ function App() {
   const handleSubmit = async (e)=> {
     e.preventDefault();
     try {
-        const response = await axios.post('/api/submit', { term });
+      
+        const response = await axios.post('http://localhost:5000/api/search', { term });
         console.log(response.data);
     } catch (error) {
         console.error('Error submitting word:', error);
