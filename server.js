@@ -60,12 +60,21 @@ app.get('/api/search', (req,res) => {
 function test () {
     const db= 'pubmed';
     const term= 'diabetes';
+    function extractNumbers(str){
+        const regex = /<Id>(\d+)<\/Id>/g;
+    let matches;
+    const ids = [];
 
+    while ((matches = regex.exec(str)) !== null) {
+        ids.push(matches[1]); // matches[1] contains the captured group (the number)
+    }
+
+    return ids;
+    }
     axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { db, term } })
         .then(response => {
-            const responseType= typeof response.data;
-            console.log(responseType)
-            console.log(response.data)
+            
+            return extractNumbers(response.data)
         })
         .catch(error => {
             console.log(error)
