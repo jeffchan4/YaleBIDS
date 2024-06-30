@@ -105,6 +105,29 @@ async function insertTask(taskData) {
       sql.close();
     }
   }
+  async function fetchTaskStatus(taskId) {
+    try {
+      // Connect to MSSQL
+      await sql.connect(config);
+  
+      // Query to fetch status
+      const result = await sql.query`SELECT status FROM tasks WHERE task_id = ${taskId}`;
+  
+      // Check if task found
+      if (result.recordset.length > 0) {
+        console.log(result.recordset[0].status)
+        return result.recordset[0].status;
+      } else {
+        throw new Error(`Task with ID ${taskId} not found`);
+      }
+    } catch (err) {
+      console.error('Error fetching task status:', err.message);
+      throw err; // Propagate the error
+    } finally {
+      // Close MSSQL connection
+      await sql.close();
+    }
+  }
 
 
 const search_term= async (taskId,term,start_time) => {
@@ -212,13 +235,22 @@ app.post('/search', (req,res)=>{
         "query":term,
         "task_id": taskId,
         "status":"processing",
+        "result":{},
+        "created_time": getDateTime(),
+        "start_time": new Date(),
+        "run_seconds": 0
+        }
+    
+       
+    const taskData={
+        "query":term,
+        "task_id": taskId,
+        "status":"processing",
         "result":'',
         "created_time": getDateTime(),
         "start_time": new Date(),
         "run_seconds": 0
         }
-
-    const taskData=tasks[taskId]
     insertTask(taskData);
 
     const response={
@@ -235,6 +267,7 @@ app.get('/fetch/:taskId', (req,res)=>{
     const taskId = req.params.taskId;
     console.log(req.params);
     console.log(taskId)
+    fetchTaskStatus(taskId);
     const task= tasks[taskId]
     if (!task){
         return res.status(404).json({error:'task not found'})
@@ -250,7 +283,6 @@ app.get('/fetch/:taskId', (req,res)=>{
             "task_id": task['task_id'],
             "status": task['status'],
             "result": task['result'],
-            
             "created_time":task['created_time'],
             "run_seconds": task['run_seconds']
         })
@@ -289,6 +321,5 @@ app.get('/fetch/:taskId', (req,res)=>{
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
 
 
