@@ -67,7 +67,14 @@ function App() {
 
 
       return (
+        <div>
+        <header className="header">
+          <h1>PubMed Search</h1>
+          <p>Search up related articles!</p>
+        </header>
+          
         <div className="container">
+          
           <form className="search-form" onSubmit={handleSubmit}>
             <input
               type="text"
@@ -90,6 +97,7 @@ function App() {
               <p>No IDs to display.</p>
             )}
           </div>
+        </div>
         </div>
       );
     };

@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const axios = require('axios');
 
+const sql = require('mssql');
+const config = require('./config'); // Ensure config.js has your database connection details
+
 const PORT = process.env.PORT || 5000;
 
 // Parse JSON bodies
@@ -38,7 +41,73 @@ let tasks= {}
 
 
 
-const search_term= async (taskId,term) => {
+// Function to insert a task into the tasks table
+async function insertTask(taskData) {
+    try {
+      await sql.connect(config);
+  
+      // Prepare insert query
+      const query = `
+        INSERT INTO tasks (task_id, query, status, result, created_time, start_time, run_seconds)
+        VALUES (@task_id, @query, @status, @result, @created_time, @start_time, @run_seconds)
+      `;
+      
+      // Create a new Request object
+      const request = new sql.Request();
+  
+      // Bind parameters
+      request.input('task_id', sql.NVarChar(50), taskData.task_id);
+      request.input('query', sql.NVarChar(sql.MAX), taskData.query);
+      request.input('status', sql.NVarChar(50), taskData.status);
+      request.input('result', sql.NVarChar(sql.MAX), taskData.result); // Store result as JSON string
+      request.input('created_time', sql.NVarChar(sql.MAX), taskData.created_time);
+      request.input('start_time', sql.DateTime, taskData.start_time);
+      request.input('run_seconds', sql.Int, taskData.run_seconds);
+  
+      // Execute insert query
+      const result = await request.query(query);
+  
+      console.log('Rows affected:', result.rowsAffected);
+    } catch (err) {
+      console.error('Error inserting data:', err.message);
+    } finally {
+      sql.close();
+    }
+  }
+
+  async function updateTask(taskId, newStatus, newResult, run_seconds) {
+    try {
+      await sql.connect(config);
+  
+      // Prepare update query
+      const query = `
+        UPDATE tasks
+        SET status = @newStatus, result = @newResult, run_seconds = @run_seconds
+        WHERE task_id = @taskId
+      `;
+  
+      // Create a new Request object
+      const request = new sql.Request();
+  
+      // Bind parameters
+      request.input('taskId', sql.NVarChar(50), taskId);
+      request.input('newStatus', sql.NVarChar(50), newStatus);
+      request.input('newResult', sql.NVarChar(sql.MAX), newResult);
+      request.input('run_seconds',sql.Int, run_seconds);
+  
+      // Execute update query
+      const result = await request.query(query);
+  
+      console.log('Rows affected:', result.rowsAffected);
+    } catch (err) {
+      console.error('Error updating task:', err.message);
+    } finally {
+      sql.close();
+    }
+  }
+
+
+const search_term= async (taskId,term,start_time) => {
     
 
     function extractNumbers(str){
@@ -62,10 +131,16 @@ const search_term= async (taskId,term) => {
         tasks[taskId].result['pmids']=pmids;
         tasks[taskId].status='completed';
 
-        finish_time= Date.now()
-        tasks[taskId].run_seconds= (finish_time - tasks[taskId].start_time)/1000;
+        string_pmids=pmids.join(',');
+
+        finish_time= new Date();
+        tasks[taskId].run_seconds= (finish_time.getTime() - start_time.getTime())/1000;
         console.log(tasks[taskId])
-            
+        const newStatus = 'completed'
+        const newResult = string_pmids;
+        const run_seconds= (finish_time.getTime() - start_time.getTime())/1000;
+        updateTask(taskId,newStatus,newResult,run_seconds)
+        
         }catch(error) {
             console.log( error );
         };
@@ -126,26 +201,31 @@ const search_term= async (taskId,term) => {
 
 //Create task_id for query while it runs in the background
 
+//async (task_id, queryText, status, result, created_time, start_time, run_seconds)
 app.post('/search', (req,res)=>{
     const {term} = req.body
     console.log('Received word:', {term});
     const taskId = uuidv4();
-
-    //write logic to see if valid pub med term then send 
+    
+    // write logic to see if valid pub med term then send 
     tasks[taskId]= {
-        "query":{term},
+        "query":term,
         "task_id": taskId,
         "status":"processing",
-        "result":{},
+        "result":'',
         "created_time": getDateTime(),
-        "start_time": Date.now(),
+        "start_time": new Date(),
         "run_seconds": 0
         }
+
+    const taskData=tasks[taskId]
+    insertTask(taskData);
+
     const response={
         "query": {term},
         "task_id": taskId
         }
-    search_term(taskId,{term})
+    search_term(taskId,{term},taskData['start_time'])
     res.json(response)
 })
 
