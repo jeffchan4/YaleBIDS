@@ -1,18 +1,25 @@
 import React, { useState , useEffect} from 'react';
 import axios from 'axios';
+import './App.css';
 
 function App() {
   const [term,setTerm]=useState('')
   const [taskId,setTaskId]=useState('')
   const [uids,setUids]= useState([])
+  const  [message, setMessage] = useState('');
+
   const handleSubmit = async (e)=> {
     e.preventDefault();
     try {
       
         const response = await axios.post('http://localhost:5000/search', { term });
         setTaskId(response.data.task_id)
-
+        setMessage('Task has been queued!');
         console.log(response.data);
+
+        setTimeout(() => {
+          setMessage('');
+        }, 5000);
     } catch (error) {
         console.error('Error submitting word:', error);
     }
@@ -57,38 +64,34 @@ function App() {
           </li>
         ))
       }
-  
 
+
+      return (
+        <div className="container">
+          <form className="search-form" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="Type a word"
+            />
+            <button type="submit">Submit</button>
+          </form>
+          {message && <p className="message">{message}</p>}
+
+          <button className="check-task-button" onClick={handleTask}>Check Task</button>
     
-  
-  
-    
-
-    return (
-    <div>
-    <form onSubmit={handleSubmit}>
-        <input
-            type="text"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder="Type a word"
-        />
-        <button type="submit">Submit</button>
-    </form>
-    <button onClick={handleTask}>Check Task</button>
-
-    <div>
-      {uids.length > 0 && (
-        <ul>
-          {renderListItems()}
-        </ul>
-      )}
-      {uids.length === 0 && (
-        <p>No IDs to display.</p>
-      )}
-    </div>
-</div>
-  );
-}
+          <div className="id-list">
+            {uids.length > 0 ? (
+              <ul>
+                {renderListItems()}
+              </ul>
+            ) : (
+              <p>No IDs to display.</p>
+            )}
+          </div>
+        </div>
+      );
+    };
 
 export default App;
