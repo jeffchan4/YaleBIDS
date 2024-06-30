@@ -169,58 +169,7 @@ const search_term= async (taskId,term,start_time) => {
         };
 }
 
-//ignore
-// app.post('/api/search', (req,res) => {
-//     const {term} = req.body;
-//     console.log('Received word:', {term});
 
-//     function extractNumbers(str){
-//         const regex = /<Id>(\d+)<\/Id>/g;
-//         let matches;
-//         const ids = [];
-
-//         while ((matches = regex.exec(str)) !== null) {
-//             ids.push(matches[1]); // matches[1] contains the captured group (the number)
-//         }
-
-//         return ids;
-//         }
- 
-
-//     axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { term } })
-//         .then(response => {
-//             const pmids=extractNumbers(response.data)
-//             res.json(pmids);
-//         })
-//         .catch(error => {
-//             res.status(500).json({ error: 'Internal server error' });
-//         });
-// });
-
-//ignore
-// function test () {
-//     const db= 'pubmed';
-//     const term= 'diabetes';
-//     function extractNumbers(str){
-//         const regex = /<Id>(\d+)<\/Id>/g;
-//         let matches;
-//         const ids = [];
-
-//         while ((matches = regex.exec(str)) !== null) {
-//             ids.push(matches[1]); // matches[1] contains the captured group (the number)
-//         }
-
-//         return ids;
-//         }
-//     axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { db, term } })
-//         .then(response => {
-            
-//             return extractNumbers(response.data)
-//         })
-//         .catch(error => {
-//             console.log(error)
-//         });
-// }
 
 //Create task_id for query while it runs in the background
 
@@ -267,8 +216,9 @@ app.get('/fetch/:taskId', (req,res)=>{
     const taskId = req.params.taskId;
     console.log(req.params);
     console.log(taskId)
-    fetchTaskStatus(taskId);
+    cur_status=fetchTaskStatus(taskId);// fetch current status from ms sql
     const task= tasks[taskId]
+    //fix implementation for cur_status and fetch from db
     if (!task){
         return res.status(404).json({error:'task not found'})
     }
@@ -290,28 +240,6 @@ app.get('/fetch/:taskId', (req,res)=>{
     }
 });
 
-//ignore
-// app.post('/get_links', async (req,res)=>{
-//     try {
-//         const { uids } = req.body;
-//         if (!uids || !Array.isArray(uids) || uids.length === 0) {
-//           return res.status(400).json({ error: 'Invalid UIDs' });
-//         }
-    
-//         const uidString = uids.join(',');
-    
-//         const response = await axios.post('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi', `id=${uidString}`, {
-//           headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded',
-//           }
-//         });
-//         console.log(response)
-//         res.status(200).json(response.data);
-//       } catch (error) {
-//         console.error('Error linking UIDs:', error);
-//         res.status(500).json({ error: 'Internal Server Error' });
-//       }
-//     });
 
 
 
