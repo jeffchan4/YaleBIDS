@@ -71,35 +71,35 @@ const search_term= async (taskId,term) => {
         };
 }
 
+//ignore
+// app.post('/api/search', (req,res) => {
+//     const {term} = req.body;
+//     console.log('Received word:', {term});
 
-app.post('/api/search', (req,res) => {
-    const {term} = req.body;
-    console.log('Received word:', {term});
+//     function extractNumbers(str){
+//         const regex = /<Id>(\d+)<\/Id>/g;
+//         let matches;
+//         const ids = [];
 
-    function extractNumbers(str){
-        const regex = /<Id>(\d+)<\/Id>/g;
-        let matches;
-        const ids = [];
+//         while ((matches = regex.exec(str)) !== null) {
+//             ids.push(matches[1]); // matches[1] contains the captured group (the number)
+//         }
 
-        while ((matches = regex.exec(str)) !== null) {
-            ids.push(matches[1]); // matches[1] contains the captured group (the number)
-        }
-
-        return ids;
-        }
+//         return ids;
+//         }
  
 
-    axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { term } })
-        .then(response => {
-            const pmids=extractNumbers(response.data)
-            res.json(pmids);
-        })
-        .catch(error => {
-            res.status(500).json({ error: 'Internal server error' });
-        });
-});
+//     axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params: { term } })
+//         .then(response => {
+//             const pmids=extractNumbers(response.data)
+//             res.json(pmids);
+//         })
+//         .catch(error => {
+//             res.status(500).json({ error: 'Internal server error' });
+//         });
+// });
 
-
+//ignore
 // function test () {
 //     const db= 'pubmed';
 //     const term= 'diabetes';
@@ -178,6 +178,7 @@ app.get('/fetch/:taskId', (req,res)=>{
     }
 });
 
+//ignore
 // app.post('/get_links', async (req,res)=>{
 //     try {
 //         const { uids } = req.body;
