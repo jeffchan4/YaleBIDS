@@ -38,33 +38,17 @@ function App() {
     }
   };
 
-  // useEffect(()=>{
-  //   const fetchlinks= async () =>{
-
-    
-  //   if (uids && uids.length > 0){
-  //     try{
-  //     const response = await axios.post('http://localhost:5000/get_links',{uids});
-
-  //     } catch (error) {
-  //       console.error('Error with getting links:', error);
-  //     }
-  //   }
-  // }
-  // fetchlinks();
-  // },[uids]);
-
+  
    
       const renderListItems= () => {
         return uids.map((id,index)=>(
           
           <li key={index}>
-          <a href={`https://pubmed.ncbi.nlm.nih.gov/${id}`}>PubMed ID: {id}</a>
+          <a href={`https://pubmed.ncbi.nlm.nih.gov/${id}`} target="_blank" >PubMed ID: {id}</a>
           
           </li>
         ))
       }
-
 
       return (
         <div>
@@ -85,7 +69,13 @@ function App() {
             <button type="submit">Submit</button>
           </form>
           {message && <p className="message">{message}</p>}
-
+          <div>
+            {taskId ? (
+              <p>Task ID: {taskId}</p>
+            ) : (
+              <p>No current task.</p>
+            )}
+          </div>
           <button className="check-task-button" onClick={handleTask}>Check Task</button>
     
           <div className="id-list">

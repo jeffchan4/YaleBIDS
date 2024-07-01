@@ -36,9 +36,8 @@ function getDateTime(){
 }
 
 
-//put in db and deploy. maybe use microsoft.
-let tasks= {}
 
+let tasks= {}
 
 
 // Function to insert a task into the tasks table
@@ -105,30 +104,35 @@ async function insertTask(taskData) {
       sql.close();
     }
   }
-  async function fetchTaskStatus(taskId) {
+  async function fetchTaskDetails(taskId) {
     try {
       // Connect to MSSQL
       await sql.connect(config);
   
-      // Query to fetch status
-      const result = await sql.query`SELECT status FROM tasks WHERE task_id = ${taskId}`;
+      // Query to fetch all columns for the task
+      const result = await sql.query`SELECT * FROM tasks WHERE task_id = ${taskId}`;
   
       // Check if task found
       if (result.recordset.length > 0) {
-        console.log(result.recordset[0].status)
-        return result.recordset[0].status;
+        const task = result.recordset[0]; // Assuming task_id is unique, so only one row is fetched
+        return {
+          task_id: task.task_id,
+          status: task.status,
+          result: task.result,
+          created_time: task.created_time,
+          run_seconds: task.run_seconds
+        };
       } else {
         throw new Error(`Task with ID ${taskId} not found`);
       }
     } catch (err) {
-      console.error('Error fetching task status:', err.message);
+      console.error('Error fetching task details:', err.message);
       throw err; // Propagate the error
     } finally {
       // Close MSSQL connection
       await sql.close();
     }
   }
-
 
 const search_term= async (taskId,term,start_time) => {
     
@@ -145,7 +149,6 @@ const search_term= async (taskId,term,start_time) => {
         return ids;
         }
  
-    
     try {
         
         const response = await axios.get(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi`, { params:  term  })
@@ -158,12 +161,12 @@ const search_term= async (taskId,term,start_time) => {
 
         finish_time= new Date();
         tasks[taskId].run_seconds= (finish_time.getTime() - start_time.getTime())/1000;
-        console.log(tasks[taskId])
+        
         const newStatus = 'completed'
         const newResult = string_pmids;
         const run_seconds= (finish_time.getTime() - start_time.getTime())/1000;
         updateTask(taskId,newStatus,newResult,run_seconds)
-        
+  
         }catch(error) {
             console.log( error );
         };
@@ -172,14 +175,11 @@ const search_term= async (taskId,term,start_time) => {
 
 
 //Create task_id for query while it runs in the background
-
-//async (task_id, queryText, status, result, created_time, start_time, run_seconds)
 app.post('/search', (req,res)=>{
     const {term} = req.body
     console.log('Received word:', {term});
     const taskId = uuidv4();
     
-    // write logic to see if valid pub med term then send 
     tasks[taskId]= {
         "query":term,
         "task_id": taskId,
@@ -207,34 +207,44 @@ app.post('/search', (req,res)=>{
         "task_id": taskId
         }
     search_term(taskId,{term},taskData['start_time'])
+    
     res.json(response)
 })
 
 
 
-app.get('/fetch/:taskId', (req,res)=>{
+
+app.get('/fetch/:taskId', async (req,res)=>{
     const taskId = req.params.taskId;
-    console.log(req.params);
-    console.log(taskId)
-    cur_status=fetchTaskStatus(taskId);// fetch current status from ms sql
+    const taskDetails=await fetchTaskDetails(taskId);// fetch current status from ms sql
     const task= tasks[taskId]
-    //fix implementation for cur_status and fetch from db
-    if (!task){
+    const resultList = taskDetails.result.split(',');
+    console.log(resultList)
+
+    
+    if (!taskDetails){
         return res.status(404).json({error:'task not found'})
     }
-    if (task['status']=='processing'){
+    if (taskDetails.status=='processing'){
         res.json({
-            "task_id": task['task_id'],
-            "status": task['status'],
-            "created_time": task['created_time']
+            "task_id": taskDetails['task_id'],
+            "status": taskDetails['status'],
+            "created_time": taskDetails['created_time']
         })
-    } else if (task['status']=='completed'){
+    } else if (taskDetails.status=='completed'){
+        console.log({
+            "task_id": taskDetails['task_id'],
+            "status": taskDetails['status'],
+            "result": {'pmids': resultList},
+            "created_time":taskDetails['created_time'],
+            "run_seconds": taskDetails['run_seconds']
+        })
         res.json({
-            "task_id": task['task_id'],
-            "status": task['status'],
-            "result": task['result'],
-            "created_time":task['created_time'],
-            "run_seconds": task['run_seconds']
+            "task_id": taskDetails['task_id'],
+            "status": taskDetails['status'],
+            "result": {'pmids': resultList},
+            "created_time":taskDetails['created_time'],
+            "run_seconds": taskDetails['run_seconds']
         })
     
     }
