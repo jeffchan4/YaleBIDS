@@ -10,8 +10,22 @@ React 18.3.1, Express 4.19.2 were used in creating this application.
 ## How to Start
 
 ### Term Search
-The user will be able to input a term they would like to fetch from Pubmed database. Once submitted, the user will be provided a taskId that they can use to reference this certain task. The user can check the status of this task by clicking 'Check Task'.
+The user will be able to input a term they would like to fetch from Pubmed database. Once submitted, the user will be provided a taskId that they can use to reference this certain task. 
+
+
+
+https://github.com/jeffchan4/YaleBIDS/assets/112337204/6e47f64d-73c1-45aa-8db1-cb185fd5a65c
+
+
+
+
+### Check Task
+The user can check the status of this task by clicking 'Check Task'.
 If the task is completed, a list of URLS to related Pubmed articles will be displayed along with their article ID
 
+
+
+
+https://github.com/jeffchan4/YaleBIDS/assets/112337204/065c4982-95f9-4e0c-8112-0556c2f0df1b
 
 
