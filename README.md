@@ -12,6 +12,7 @@ Additionally, Docker posed initial challenges in terms of understanding and conf
 React 18.3.1, Express 4.19.2 were used in creating this application.
 
 ## How to Start
+Run node server.js to start the backend on localhost:5000, and run npm start to start the frontend on localhost:3000.
 
 ### Term Search
 The user will be able to input a term they would like to fetch from Pubmed database. Once submitted, the user will be provided a taskId that they can use to reference this certain task and the task will be stored in Azure SQL.
@@ -32,4 +33,11 @@ If the task is completed, a list of URLS to related Pubmed articles will be disp
 
 https://github.com/jeffchan4/YaleBIDS/assets/112337204/065c4982-95f9-4e0c-8112-0556c2f0df1b
 
+
+### The JSON response
+
+
+![returnedjson](https://github.com/jeffchan4/YaleBIDS/assets/112337204/d3df7024-bfbe-4714-9e4d-b6db78a90175)
+![returnedjson](https://github.com/jeffchan4/YaleBIDS/assets/112337204/d3df7024-bfbe-4714-9e4d-b6db78a90175)
+![returnedjson](https://github.com/jeffchan4/YaleBIDS/assets/112337204/d3df7024-bfbe-4714-9e4d-b6db78a90175)
 
