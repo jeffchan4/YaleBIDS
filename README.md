@@ -38,6 +38,5 @@ https://github.com/jeffchan4/YaleBIDS/assets/112337204/065c4982-95f9-4e0c-8112-0
 
 
 ![returnedjson](https://github.com/jeffchan4/YaleBIDS/assets/112337204/d3df7024-bfbe-4714-9e4d-b6db78a90175)
-![returnedjson](https://github.com/jeffchan4/YaleBIDS/assets/112337204/d3df7024-bfbe-4714-9e4d-b6db78a90175)
-![returnedjson](https://github.com/jeffchan4/YaleBIDS/assets/112337204/d3df7024-bfbe-4714-9e4d-b6db78a90175)
+
 
