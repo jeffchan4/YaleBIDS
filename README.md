@@ -14,6 +14,9 @@ React 18.3.1, Express 4.19.2 were used in creating this application.
 ## How to Start
 Run node server.js to start the backend on localhost:5000, and run npm start to start the frontend on localhost:3000.
 
+## Docker Containerization
+A Docker image was built for frontend and backend, where each container was ran on the host machine.
+
 ### Term Search
 The user will be able to input a term they would like to fetch from Pubmed database. Once submitted, the user will be provided a taskId that they can use to reference this certain task and the task will be stored in Azure SQL.
 
